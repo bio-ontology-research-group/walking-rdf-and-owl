@@ -45,31 +45,34 @@ model.listStatements().each { stmt ->
   def subj = stmt.getSubject()
   def obj = stmt.getObject()
 
-  if (map[pred] == null) {
-    map[pred] = counter
-    counter += 1
-  }
-  if (map[subj] == null) {
-    map[subj] = counter
-    counter += 1
-  }
-  if (map[obj] == null) {
-    map[obj] = counter
-    counter += 1
-  }
+  if (subj.isURIResource() && obj.isURIResource()) {
   
-  def predid = map[pred]
-  def subjid = map[subj]
-  def objid = map[obj]
-  
-  /* generate three nodes and directed edges */
-  fout.println(subjid+" "+predid)
-  fout.println(predid+" "+objid)
-
-  // add reverse edges for undirected graph; need to double the walk length!
-  if (undirected) {
-    fout.println(objid+" "+predid)
-    fout.println(predid+" "+subjid)
+    if (map[pred] == null) {
+      map[pred] = counter
+      counter += 1
+    }
+    if (map[subj] == null) {
+      map[subj] = counter
+      counter += 1
+    }
+    if (map[obj] == null) {
+      map[obj] = counter
+      counter += 1
+    }
+    
+    def predid = map[pred]
+    def subjid = map[subj]
+    def objid = map[obj]
+    
+    /* generate three nodes and directed edges */
+    fout.println(subjid+" "+predid)
+    fout.println(predid+" "+objid)
+    
+    // add reverse edges for undirected graph; need to double the walk length!
+    if (undirected) {
+      fout.println(objid+" "+predid)
+      fout.println(predid+" "+subjid)
+    }
   }
 }
 
