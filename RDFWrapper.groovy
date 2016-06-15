@@ -73,10 +73,13 @@ if (classify) {
   OWLReasonerConfiguration config = new SimpleConfiguration(progressMonitor)
   ElkReasonerFactory f1 = new ElkReasonerFactory()
   OWLReasoner reasoner = f1.createReasoner(ont,config)
+  def cc = 0
   new InferredClassAssertionAxiomGenerator().createAxioms(fac, reasoner).each { ax ->
     manager.addAxiom(ont, ax)
+    cc += 1
   }
   manager.saveOntology(ont, IRI.create(f.toURI()))
+  println "$cc axioms inferred."
 }
 
 def filename = null
