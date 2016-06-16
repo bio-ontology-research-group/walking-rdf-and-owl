@@ -12,3 +12,7 @@ The output file can be used directly as input for the [DeepWalk](https://github.
 deepwalk --workers 64 --representation-size 256 --format edgelist --input test.txt --log DEBUG --output out.txt --window-size 5 --number-walks 500 --walk-length 40
 ~~~~
 to learn an embedding of size `256` using `64` parallel workers based on `500` walks of length `40` for each node.
+
+## Classification support
+
+The RDFWrapper script comes with inbuilt support for OWL classification. Use this when your RDF dataset contains references to ontologies _and_ the full ontology. We use the ELK reasoner, which supports the OWL 2 EL profile, to classify the ontology and infer class assertion axioms for all individuals. These are added to the RDF dataset following classification and used to build the graph.
