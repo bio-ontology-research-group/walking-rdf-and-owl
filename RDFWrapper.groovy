@@ -122,13 +122,13 @@ model.listStatements().each { stmt ->
     def objid = map[obj]
     
     /* generate three nodes and directed edges */
-    fout.println(subjid+" "+predid)
-    fout.println(predid+" "+objid)
+    fout.println(subjid+" "+predid+" "+objid)
+    //    fout.println(predid+" "+objid)
     
     // add reverse edges for undirected graph; need to double the walk length!
     if (undirected) {
-      fout.println(objid+" "+predid)
-      fout.println(predid+" "+subjid)
+      fout.println(objid+" "+predid+" "+subjid)
+      //      fout.println(predid+" "+subjid)
     }
   }
 }
