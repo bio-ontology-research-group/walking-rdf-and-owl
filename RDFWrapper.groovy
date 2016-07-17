@@ -1,11 +1,10 @@
 @Grapes([
-	  @Grab(group='org.semanticweb.elk', module='elk-owlapi', version='0.4.2'),
-	  @Grab(group='net.sourceforge.owlapi', module='owlapi-api', version='4.1.0'),
-	  @Grab(group='net.sourceforge.owlapi', module='owlapi-apibinding', version='4.1.0'),
-	  @Grab(group='net.sourceforge.owlapi', module='owlapi-impl', version='4.1.0'),
-	  @Grab(group='net.sourceforge.owlapi', module='owlapi-parsers', version='4.1.0'),
+	  @Grab(group='org.semanticweb.elk', module='elk-owlapi', version='0.4.3'),
+	  @Grab(group='net.sourceforge.owlapi', module='owlapi-api', version='4.2.5'),
+	  @Grab(group='net.sourceforge.owlapi', module='owlapi-apibinding', version='4.2.5'),
+	  @Grab(group='net.sourceforge.owlapi', module='owlapi-impl', version='4.2.5'),
+	  @Grab(group='net.sourceforge.owlapi', module='owlapi-parsers', version='4.2.5'),
 	  @Grab(group='org.apache.jena', module='apache-jena-libs', version='3.1.0', type='pom')
-
 	])
 
 import org.semanticweb.owlapi.model.parameters.*
@@ -36,6 +35,7 @@ usage: 'Self'
   u longOpt:'undirected', 'build undirected graph (default: false)', args:1, required:false
   c longOpt:'classify', 'use an OWL reasoner to classify the RDF dataset (must be in RDF/XML) before graph generation (default: false)', args:1, required:false
   f longOpt:'format', 'RDF format; values are "RDF/XML", "N-TRIPLE", "TURTLE" and "N3" (default: RDF/XML)', args:1, required:false
+  d longOpt:'ontology-directory', 'directory with ontologies to use for reasoning', args:1, required:false
 }
 def opt = cli.parse(args)
 if( !opt ) {
@@ -67,7 +67,14 @@ PrintWriter mout = new PrintWriter(new BufferedWriter(new FileWriter(opt.m)))
 def f = File.createTempFile("temp",".tmp")
 if (classify) {
   OWLOntologyManager manager = OWLManager.createOWLOntologyManager()
-  def ont = manager.loadOntologyFromOntologyDocument(new File(opt.i))
+  def oset = new LinkedHashSet()
+  oset.add(manager.loadOntologyFromOntologyDocument(new File(opt.i)))
+  if (opt.d) {
+    new File(opt.d).eachFile { ofile ->
+      oset.add(manager.loadOntologyFromOntologyDocument(ofile))
+    }
+  }
+  OWLOntology ont = manager.createOntology(IRI.create("http://aber-owl.net/rdfwalker/t.owl"),oset)
   OWLDataFactory fac = manager.getOWLDataFactory()
   ConsoleProgressMonitor progressMonitor = new ConsoleProgressMonitor()
   OWLReasonerConfiguration config = new SimpleConfiguration(progressMonitor)
@@ -122,12 +129,12 @@ model.listStatements().each { stmt ->
     def objid = map[obj]
     
     /* generate three nodes and directed edges */
-    fout.println(subjid+" "+predid+" "+objid)
+    fout.println(subjid+" "+objid+" "+predid)
     //    fout.println(predid+" "+objid)
     
     // add reverse edges for undirected graph; need to double the walk length!
     if (undirected) {
-      fout.println(objid+" "+predid+" "+subjid)
+      fout.println(objid+" "+subjid+" "+predid)
       //      fout.println(predid+" "+subjid)
     }
   }
