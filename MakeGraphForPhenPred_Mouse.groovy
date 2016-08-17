@@ -55,19 +55,12 @@ new File("../data/10090.protein.actions.v10.txt").splitEachLine("\t") { line ->
 }
 
 
-new File("../data/uniprot2go.nt").splitEachLine("\t") { line ->
-  def go = line[2].replaceAll(" .","")
-  def goi = go.replaceAll(">","i>")
-  println line[0]+" "+line[1]+" "+goi +" ."
-  println goi+" <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> "+go+" ."
-}
-
 new File("../data/Mmu/Mmu.v13-01.G20959-S31479.rma.mrgeo.d/").eachFile { file ->
   def gid = file.getName()
   file.splitEachLine("\t") { line ->
     def gid2 = line[0]
     def val = new Double(line[2])
-    if (val >= 0.3) { // positive
+    if (val >= 0.3) { 
       println "<http://www.ncbi.nlm.nih.gov/gene/"+gid+"> <http://example.com/pos_corr> <http://www.ncbi.nlm.nih.gov/gene/"+gid2+"> ."
     } else if (val <= -0.3) {
       println "<http://www.ncbi.nlm.nih.gov/gene/"+gid+"> <http://example.com/neg_corr> <http://www.ncbi.nlm.nih.gov/gene/"+gid2+"> ."

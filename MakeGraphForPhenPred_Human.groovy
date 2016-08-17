@@ -53,14 +53,6 @@ new File("../data/9606.protein.actions.v10.txt").splitEachLine("\t") { line ->
   }
 }
 
-new File("../data/uniprot2go.nt").splitEachLine("\t") { line ->
-  def go = line[2].replaceAll(" .","")
-  def goi = go.replaceAll(">","i>")
-  println line[0]+" "+line[1]+" "+goi +" ."
-  println goi+" <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> "+go+" ."
-}
-
-
 new File("../data/Hsa2.v14-08.G19788-S12640.rma.mrgeo.d/").eachFile { file ->
   def gid = file.getName()
   file.splitEachLine("\t") { line ->

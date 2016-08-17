@@ -56,9 +56,11 @@ def balance_and_process_for_weka(infile, outfile,embedding_size,genesset):
 
 if __name__ == '__main__':
 
+
     entrezmap = symbol2entrezmap('../data/sym2entrezfull.txt')   
     hpomap = hpo2genesmap('../data/phenotypes.txt',entrezmap)
     
+    # for all hpo classes 
     for hp in hpomap.keys():
         geneset = set(hpomap[hp])
         if len(geneset) >= 20:
@@ -66,3 +68,4 @@ if __name__ == '__main__':
             p = subprocess.call('echo '+hp+' Results: >> ../data/hpo_results.txt', shell = True)
             p = subprocess.call('java -cp ./weka.jar  weka.classifiers.functions.Logistic -t ../wekafiles3/'+outforwekafile+' -v -o >> ../data/hpo_results.txt',shell=True)
             p = subprocess.call('echo XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX >> ../data/hpo_results.txt', shell=True)
+    
