@@ -1,12 +1,10 @@
 @Grab(group='org.codehaus.gpars', module='gpars', version='1.2.1')
-@Grab(group='net.sf.jung', module='jung-api', version='2.1.1')
-@Grab(group='net.sf.jung', module='jung-graph-impl', version='2.1.1')
-@Grab(group='net.sf.jung', module='jung-algorithms', version='2.1.1')
 
+// memory efficient and parallel (multi-node) implementation
+
+// also, reads RDF data (N3)
 
 import groovyx.gpars.GParsPool
-import edu.uci.ics.jung.graph.*
-import edu.uci.ics.jung.algorithms.scoring.*
 
 def cli = new CliBuilder()
 cli.with {
@@ -34,84 +32,82 @@ def fout = new PrintWriter(new BufferedWriter(new FileWriter(opt.o)))
 
 Random random = new Random()
 
-println "Building graph..."
-DirectedGraph<Integer, LabelledEdge> g = new DirectedSparseGraph<Integer, LabelledEdge>()
-new File(opt.i).splitEachLine("\\s+") { line ->
-  def source = new Integer(line[0])
-  def target = new Integer(line[1])
-  def edge = new LabelledEdge()
-  edge.id = random.nextDouble()
-  edge.label = new Integer(line[2])
-  g.addEdge(edge, source, target)
-}
 
-println "Computing node degree..."
-def zerod = new LinkedHashSet()
-g.getVertices().each { v ->
-  if (g.inDegree(v) == 0 && g.outDegree(v) == 0) {
-    zerod.add(v)
+def graph = new LinkedHashMap(10000000).withDefault { new LinkedHashSet() } // Source -> Pair; edgelist representation
+def nodemapping = [:]
+def edgemapping = [:]
+def nodecounter = 0
+def edgecounter = 0
+
+println "Building graph..."
+new File(opt.i).splitEachLine("\\s+") { line ->
+  def source = line[0]
+  def edge = line[1]
+  def target = line[2]
+  def sourceid = null
+  def edgeid = null
+  def targetid = null
+  if (nodemapping[source]) {
+    sourceid = nodemapping[source]
+  } else {
+    sourceid = nodecounter
+    nodemapping[source] = nodecounter
+    nodecounter += 1
   }
+  if (nodemapping[target]) {
+    targetid = nodemapping[target]
+  } else {
+    targetid = nodecounter
+    nodemapping[target] = nodecounter
+    nodecounter += 1
+  }
+  if (edgemapping[edge]) {
+    edgeid = edgemapping[edge]
+  } else {
+    edgeid = edgecounter
+    edgemapping[edge] = edgecounter
+    edgecounter += 1
+  }
+  Edge p = new Edge(edgeid, targetid)
+  //  graph[sourceid][edgeid].add(targetid)
+  graph[sourceid].add(p)
 }
-println "Removing 0 degree nodes: $zerod"
-zerod.each { g.removeVertex(it) }
 
 println "Walking..."
+def walks = []
 GParsPool.withPool {
-  g.getVertices().eachParallel { v ->
-    def walks = []
-
+  graph.keySet().eachParallel { source ->
     // walking forward
-    if (g.outDegree(v) > 0) {
+    if (graph[source].size()>0) { // if there are outgoing edges at all
       n.times {
 	def walk = []
 	def count = l
-	def current = v
+	def current = source
+	
 	walk << current
 	while (count > 0) {
-	  def out = g.getOutEdges(v)
-	  if (out.size()>0) {
-	    def next = out[random.nextInt(out.size())]
-	    def target = g.getDest(next)
-	    walk << next.label << target
+	  if (graph[current].size() > 0 ) { // if there are outgoing edges
+	    def next = graph[current][random.nextInt(graph[current].size())] // select random outgoing edge
+	    def target = next.node
+	    def edge = next.edge
+	    walk << edge << target
+	    current = target
 	  } else { // restart; use epsilon edge
-	    def next = Integer.MAX_VALUE
-	    def target = v
-	    walk << next << target
+	    def edge = Integer.MAX_VALUE
+	    current = source
+	    walk << edge << current
 	  }
 	  count -= 1
 	}
-	walks << walk
+	fout.println(walk.join(" "))
+	      //walks << walk
       }
-    }
-
-    // walking backwards
-    if (g.inDegree(v) > 0) {
-      n.times {
-	def walk = []
-	def count = l
-	def current = v
-	walk << current
-	while (count > 0) {
-	  def out = g.getInEdges(v)
-	  if (out.size()>0) {
-	    def next = out[random.nextInt(out.size())]
-	    def target = g.getSource(next)
-	    walk << -next.label << target
-	  } else { // restart; use epsilon edge
-	    def next = null
-	    def target = v
-	    walk << next << target
-	  }
-	  count -= 1
-	}
-	//	println walk
-	walks << walk
-      }
-    }
-    walks.each { walk ->
-      fout.println(walk.join(" "))
     }
   }
+  
+  //  walks.each { walk ->
+  //    fout.println(walk.join(" "))
+  //  }
 }
 fout.flush()
 fout.close()
