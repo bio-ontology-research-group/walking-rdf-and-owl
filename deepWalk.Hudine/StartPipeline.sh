@@ -1,5 +1,6 @@
 groovy Scripts/BuildGraphHuDiNe.groovy
 groovy Scripts/RDFWrapper.groovy -i GeneratedFiles/BuildGraph/InWrapper.rdf -o GeneratedFiles/Wrapper/OutWrapper.rdf -m GeneratedFiles/Wrapper/mapping.txt -d ../BuildGraph/data/ontology/data -c TRUE
+groovy Scripts/Render.groovy
 groovy Scripts/Split.groovy
 groovy Scripts/GetListExclud.groovy
 for i in $(seq 1 5)
