@@ -24,6 +24,14 @@ thus restrict walking to start from the remaining nodes. This modified version p
 deepwalk --workers 48  --walk-length 20 --window-size 10 --number-walks 100 --representation-size 512 --format edgelist --excludlist exnodes.txt  --input outWrapper.txt --output outDeep.txt
 ~~~~
 
+To run the c++ multithreaded implementation of deepwalk, you need to have boost C++ libraries installed, on a Ubuntu system, you can do:
+~~~
+sudo apt-get install libboost-all-dev
+~~~
+Then make and run deepwalk
+~~~~
+deepwalk edgelistfile.txt walksfile.txt
+~~~~
 
 ## Classification support
 
