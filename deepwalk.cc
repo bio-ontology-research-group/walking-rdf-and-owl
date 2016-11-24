@@ -16,25 +16,20 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <boost/threadpool.hpp>
-#include <boost/iostreams/device/file.hpp>
-#include <boost/iostreams/device/file_descriptor.hpp>
-#include <boost/iostreams/stream.hpp>
 #include <cstring>
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/types.h>
 
-#define NUM_NODES 50000000
-#define BUFFERSIZE 256
-#define THREADS 2
+#define NUM_NODES 1000000
+#define BUFFERSIZE 512
+#define THREADS 64
 
 #define NUMBER_WALKS 500
-#define LENGTH_WALKS 50
+#define LENGTH_WALKS 20
 
 using namespace std;
 using namespace boost::threadpool;
-
-namespace io = boost::iostreams;
 
 
 struct Edge {
@@ -50,6 +45,7 @@ uniform_int_distribution<int> uni(0,INT_MAX);
 
 
 ofstream fout;
+boost::mutex mtx;
 
 
 void build_graph(string fname) {
@@ -94,8 +90,8 @@ void walk(unsigned int source) {
       }
     }
   }
+  stringstream ss;
   for(vector<vector<unsigned int>>::iterator it = walks.begin(); it != walks.end(); ++it) {
-    stringstream ss;
     for(size_t i = 0; i < (*it).size(); ++i) {
       if(i != 0) {
 	ss << " ";
@@ -103,17 +99,20 @@ void walk(unsigned int source) {
       ss << (*it)[i];
     }
     ss << "\n" ;
-    fout << ss.str() ;
   }
+  mtx.lock() ;
+  fout << ss.str() ;
+  fout.flush() ;
+  mtx.unlock() ;
 }
 
 void generate_corpus() {
   pool tp(THREADS);
-
   for ( auto it = graph.begin(); it != graph.end(); ++it ) {
     unsigned int source = it -> first ;
     tp.schedule(boost::bind(&walk, source ) ) ;
   }
+  cout << tp.pending() << " tasks pending." << "\n" ;
   tp.wait() ;
 }
 
