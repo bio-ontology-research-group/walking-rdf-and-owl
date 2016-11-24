@@ -28,9 +28,10 @@ To run the c++ multithreaded implementation of deepwalk, you need to have boost 
 ~~~
 sudo apt-get install libboost-all-dev
 ~~~
-Then make and run deepwalk
+You also need to install the [Boost Threadpool Header files](http://threadpool.sourceforge.net/). 
+Once all header files and libraries are installed, just type  `make` and run deepwalk
 ~~~~
-deepwalk edgelistfile.txt walksfile.txt
+./deepwalk edgelistfile.txt walksfile.txt
 ~~~~
 
 ## Classification support
