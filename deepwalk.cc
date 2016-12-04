@@ -23,9 +23,9 @@
 
 #define NUM_NODES 1000000
 #define BUFFERSIZE 512
-#define THREADS 64
+#define THREADS 32
 
-#define NUMBER_WALKS 500
+#define NUMBER_WALKS 100
 #define LENGTH_WALKS 20
 
 using namespace std;
