@@ -38,3 +38,8 @@ Once all header files and libraries are installed, just type  `make` to compile 
 
 The RDFWrapper script comes with inbuilt support for OWL classification. Use this when your RDF dataset contains references to ontologies _and_ the full ontology. We use the ELK reasoner, which supports the OWL 2 EL profile, to classify the ontology and infer class assertion axioms for all individuals. These are added to the RDF dataset following classification and used to build the graph.
 
+## Example
+
+An example knowledge graph and the resulting embeddings can be found here:
+* Knowledge graph: http://aber-owl.net/aber-owl/bio2vec/bio-knowledge-graph.n3
+* Embeddings: http://aber-owl.net/aber-owl/bio2vec/bio-knowledge-graph.embeddings.gz
