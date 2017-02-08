@@ -49,7 +49,7 @@ for train_idx, test_idx in kf:
 	np.savetxt(edgelist, rdfgraph, fmt = '%s')
 	np.savetxt(train_file, train_edges, fmt = '%s')
 	np.savetxt(test_file, test_edges, fmt = '%s')
-        print('all graph edges after dropping 20 percent: {}'.format(len(rdfgraph)))
+    print('all graph edges after dropping 20 percent: {}'.format(len(rdfgraph)))
 	print('train graph edges is: {}'.format(len(train_edges)))
 	print('test graph edges is: {}'.format(len(test_edges)))	
 	rdf = rdforig

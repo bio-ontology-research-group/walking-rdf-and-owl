@@ -150,8 +150,8 @@ for j in range(5):
 
 	print('AUC:',roc_auc_score(test_labels,y_pred))
 	print(classification_report(test_labels, y_pred_label))
-        roc_score = roc_auc_score(test_labels,y_pred)
-        resfile.write('AUC: {}\n'.format(roc_score))
+    roc_score = roc_auc_score(test_labels,y_pred)
+    resfile.write('AUC: {}\n'.format(roc_score))
 	report = classification_report(test_labels, y_pred_label)
 	resfile.write(report+'\n\n')
 
