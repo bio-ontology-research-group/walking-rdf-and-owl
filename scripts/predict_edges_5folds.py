@@ -130,15 +130,6 @@ for j in range(5):
 	
 	test_data = np.append(data_test_positive, data_test_negative, axis = 0)
 	test_label = np.append(np.ones(data_test_positive.shape[0], dtype = 'int32'), np.zeros(data_test_negative.shape[0], dtype = 'int32'))
-	train_data_all = np.c_[train_data, train_label]
-	test_data_all = np.c_[test_data, test_label]
-	random.shuffle(train_data_all)
-	random.shuffle(test_data_all)
-
-	train_data = train_data_all[:,0:-1]
-	train_labels = train_data_all[:,-1]
-	test_data = test_data_all[:,0:-1]
-	test_labels = test_data_all[:,-1]
 
 	resfile.write('fold: {}'.format(str(j))+'\n')
 
@@ -150,8 +141,8 @@ for j in range(5):
 
 	print('AUC:',roc_auc_score(test_labels,y_pred))
 	print(classification_report(test_labels, y_pred_label))
-    roc_score = roc_auc_score(test_labels,y_pred)
-    resfile.write('AUC: {}\n'.format(roc_score))
+        roc_score = roc_auc_score(test_labels,y_pred)
+        resfile.write('AUC: {}\n'.format(roc_score))
 	report = classification_report(test_labels, y_pred_label)
 	resfile.write(report+'\n\n')
 
