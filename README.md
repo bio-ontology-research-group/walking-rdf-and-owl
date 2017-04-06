@@ -1,8 +1,8 @@
 # Walking RDF and OWL
 
-machine learning over RDF. 
+Feature learning on RDF and OWL (i.e., Description Logic theories). 
 
-Here is some scripts to facilitate building the graph, classifying it and learn its node represenations
+Here are some scripts to facilitate building the graph, classifying it and learning its node representations:
 
 To run: `groovy RDFWrapper` and follow instructions. The input is an RDF graph and the output file can be used directly as input for the [DeepWalk](https://github.com/phanein/deepwalk) tool. 
 For example, To classify the RDF graph against some ontologies using ELK and convert it to edgelist, use the following:
