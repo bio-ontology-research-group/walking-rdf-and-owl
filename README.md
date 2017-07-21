@@ -47,4 +47,4 @@ An example knowledge graph and the resulting embeddings can be found here:
 
 ## How to cite
 
-If you use our code, please cite our paper: [Neuro-symbolic representation learning on biological knowledge graphs](https://academic.oup.com/bioinformatics/article/3760100/Neuro-symbolic-representation-learning-on)
+If you use our code, please cite our paper: [Alsharani et al. Neuro-symbolic representation learning on biological knowledge graphs. Bioinformatics 2017 btx275. doi: 10.1093/bioinformatics/btx275](https://academic.oup.com/bioinformatics/article/3760100/Neuro-symbolic-representation-learning-on)
