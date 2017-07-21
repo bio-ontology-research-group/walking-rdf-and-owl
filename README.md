@@ -44,3 +44,7 @@ The RDFWrapper script comes with built-in support for OWL classification. Use th
 An example knowledge graph and the resulting embeddings can be found here:
 * Knowledge graph: http://aber-owl.net/aber-owl/bio2vec/bio-knowledge-graph.n3
 * Embeddings: http://aber-owl.net/aber-owl/bio2vec/bio-knowledge-graph.embeddings.gz
+
+## How to cite
+
+If you use our code, please cite our paper: (Neuro-symbolic representation learning on biological knowledge graphs)[https://academic.oup.com/bioinformatics/article/3760100/Neuro-symbolic-representation-learning-on]
