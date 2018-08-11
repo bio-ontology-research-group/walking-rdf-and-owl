@@ -16,6 +16,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <boost/threadpool.hpp>
+#include <boost/program_options.hpp>
 #include <cstring>
 #include <unistd.h>
 #include <stdio.h>
@@ -25,12 +26,12 @@
 #define BUFFERSIZE 512
 #define THREADS 32
 
-#define NUMBER_WALKS 100
-#define LENGTH_WALKS 20
+//#define NUMBER_WALKS 100
+//#define LENGTH_WALKS 20
 
 using namespace std;
 using namespace boost::threadpool;
-
+using namespace boost::program_options;
 
 struct Edge {
   unsigned int edge ;
@@ -43,6 +44,8 @@ random_device rd;
 mt19937 rng(rd());
 uniform_int_distribution<int> uni(0,INT_MAX);
 
+int NUMBER_WALKS=100;
+int LENGTH_WALKS=20;
 
 ofstream fout;
 boost::mutex mtx;
@@ -107,6 +110,7 @@ void walk(unsigned int source) {
 }
 
 void generate_corpus() {
+
   pool tp(THREADS);
   for ( auto it = graph.begin(); it != graph.end(); ++it ) {
     unsigned int source = it -> first ;
@@ -117,11 +121,31 @@ void generate_corpus() {
 }
 
 int main (int argc, char *argv[]) {
-  cout << "Building graph from " << argv[1] << "\n" ;
-  build_graph(argv[1]);
+
+  options_description desc("Options:");
+  desc.add_options()
+    ("help", "produce help message")
+    ("version,v", "print version string")
+    ("walk-num,w", value<int>(), "number of walks")
+    ("walk-length,l", value<int>(), "walk length")
+    ("graph,g", value<string>(), "graph filename")
+    ("output,o", value<string>(), "output filename")
+    ;
+  variables_map vm;
+  store(parse_command_line(argc, argv, desc), vm);
+  notify(vm);
+  if (vm.count("help")) {
+    cout << desc << "\n";
+    return 1;
+  }
+  NUMBER_WALKS = vm["walk-num"].as<int>();
+  LENGTH_WALKS = vm["walk-length"].as<int>();
+    
+  cout << "Building graph from " << vm["graph"].as<string>() << "\n" ; //argv[1]
+  build_graph(vm["graph"].as<string>());
   cout << "Number of nodes in graph: " << graph.size() << "\n" ;
-  cout << "Writing walks to " << argv[2] << "\n" ;
-  fout.open(argv[2]) ;
+  cout << "Writing walks to " << vm["output"].as<string>() << "\n" ; // argv[2]
+  fout.open(vm["output"].as<string>()) ;
   generate_corpus() ;
   fout.close() ;
 }
