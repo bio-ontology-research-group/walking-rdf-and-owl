@@ -34,12 +34,13 @@ using namespace std;
 using namespace boost::threadpool;
 using namespace boost::program_options;
 
-struct Edge {
-  unsigned int edge ;
-  unsigned int node ;
-} ;
+// struct Edge {
+//   unsigned int edge ;
+//   unsigned int node ;
+// } ;
 
-unordered_map<unsigned int, vector<Edge>> graph ;
+//unordered_map<unsigned int, vector<Edge>> graph ;
+unordered_map<unsigned int, unordered_map<unsigned int, vector<unsigned int>>> graph ; // node -> edge -> vector<nodes>
 
 random_device rd;
 mt19937 rng(rd());
@@ -59,6 +60,7 @@ unsigned int edgeCount ;
 unordered_map<unsigned int, unordered_map<unsigned int, int>> localEdgeCount ; // node to edge TYPE (an int) to number of times found GLOBALLY
 unordered_map<unsigned int, unordered_map<unsigned int, double>> localEdgeIC ;
 
+unordered_map<unsigned int, int> nodeDegree ; 
 
 void build_graph(string fname) {
   char buffer[BUFFERSIZE];
@@ -67,13 +69,13 @@ void build_graph(string fname) {
   while(in) {
     in.getline(buffer, BUFFERSIZE);
     if(in) {
-      Edge e ;
       unsigned int source = atoi(strtok(buffer, " "));
-      e.node = atoi(strtok(NULL, " ")) ;
-      e.edge = atoi(strtok(NULL, " ")) ;
-      graph[source].push_back(e) ;
-      globalEdgeCount[e.edge]++;
-      localEdgeCount[source][e.edge]++;
+      unsigned int target = atoi(strtok(NULL, " ")) ;
+      unsigned int edge = atoi(strtok(NULL, " ")) ;
+      graph[source][edge].push_back(target) ;
+      globalEdgeCount[edge]++;
+      localEdgeCount[source][edge]++;
+      nodeDegree[source]++;
       edgeCount++;
     }
   }
@@ -91,7 +93,7 @@ void build_graph(string fname) {
     for ( auto it2 = m.begin(); it2 != m.end(); ++it2 ) {
       unsigned int lEdge = it2 -> first ;
       int lEdgeCount = it2 -> second ;
-      int lEdgeTotalCount = graph[lNode].size();
+      int lEdgeTotalCount = nodeDegree[lNode];
       localEdgeIC[lNode][lEdge] = -log(lEdgeCount / lEdgeTotalCount);
     }
   }
@@ -99,20 +101,35 @@ void build_graph(string fname) {
 
 void walk(unsigned int source) {
   vector<vector<unsigned int>> walks(NUMBER_WALKS) ;
-  if (graph[source].size()>0) { // if there are outgoing edges at all
+  if (nodeDegree[source]>0) { // if there are outgoing edges at all
     for (int i = 0 ; i < NUMBER_WALKS ; i++) {
       int count = LENGTH_WALKS ;
       int current = source ;
       walks[i].push_back(source) ;
       while (count > 0) {
-	if (graph[current].size() > 0 ) { // if there are outgoing edges
-	  unsigned int r = uni(rng) % graph[current].size();
-	  Edge next = graph[current][r] ;
-	  int target = next.node ;
-	  int edge = next.edge ;
-	  walks[i].push_back(edge) ;
-	  walks[i].push_back(target) ;
-	  current = target ;
+	if (nodeDegree[current] > 0 ) { // if there are outgoing edges
+
+	  // setting up the distribution for local stratification
+	  vector<double> v ;
+	  map<int, unsigned int> evmap ; // corresponds to v in containing the actual edge
+	  int i = 0 ;
+	  for ( auto it = graph[current].begin(); it != graph[current].end(); ++it ) {
+	    unsigned int edge = it->first;
+	    v.push_back(localEdgeIC[current][edge]) ;
+	    evmap[i] = edge;
+	    i++;
+	  }
+	  default_random_engine generator;
+	  discrete_distribution<unsigned int> distribution(v.begin(), v.end()) ;
+	  // selecting the edge (locally stratified)
+	  int selectedEdge = evmap[distribution(generator)];
+	  unsigned int next = uni(rng) % graph[current][selectedEdge].size();
+	  //	  Edge next = graph[current][r] ;
+	  //	  int target = next.node ;
+	  //	  int edge = next.edge ;
+	  walks[i].push_back(selectedEdge) ;
+	  walks[i].push_back(next) ;
+	  current = next ;
 	} else {
 	  int edge = INT_MAX ; // null edge
 	  current = source ;
@@ -140,7 +157,6 @@ void walk(unsigned int source) {
 }
 
 void generate_corpus() {
-
   pool tp(THREADS);
   for ( auto it = graph.begin(); it != graph.end(); ++it ) {
     unsigned int source = it -> first ;
@@ -156,11 +172,11 @@ int main (int argc, char *argv[]) {
   desc.add_options()
     ("help", "produce help message")
     ("version,v", "print version string")
-    ("walk-num,w", value<int>(), "number of walks")
-    ("walk-length,l", value<int>(), "walk length")
+    ("walk-num,w", value<int>()->default_value(50), "number of walks (default: 50)")
+    ("walk-length,l", value<int>()->default_value(10), "walk length (default: 10)")
     ("graph,g", value<string>(), "graph filename")
     ("output,o", value<string>(), "output filename")
-    ("threads,t", value<int>(), "number of threads to use")
+    ("threads,t", value<int>()->default_value(1), "number of threads to use (default: 1)")
     ;
   variables_map vm;
   store(parse_command_line(argc, argv, desc), vm);
