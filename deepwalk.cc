@@ -1,3 +1,4 @@
+#include <math.h>
 #include <string>
 #include <sstream>
 #include <algorithm>
@@ -51,6 +52,13 @@ int THREADS = 32;
 ofstream fout;
 boost::mutex mtx;
 
+unordered_map<unsigned int, int> globalEdgeCount ; // edge TYPE (an int) to number of times found GLOBALLY
+unordered_map<unsigned int, double> globalEdgeIC ;
+unsigned int edgeCount ;
+
+unordered_map<unsigned int, unordered_map<unsigned int, int>> localEdgeCount ; // node to edge TYPE (an int) to number of times found GLOBALLY
+unordered_map<unsigned int, unordered_map<unsigned int, double>> localEdgeIC ;
+
 
 void build_graph(string fname) {
   char buffer[BUFFERSIZE];
@@ -64,6 +72,27 @@ void build_graph(string fname) {
       e.node = atoi(strtok(NULL, " ")) ;
       e.edge = atoi(strtok(NULL, " ")) ;
       graph[source].push_back(e) ;
+      globalEdgeCount[e.edge]++;
+      localEdgeCount[source][e.edge]++;
+      edgeCount++;
+    }
+  }
+
+  // computing the global edge IC
+  for ( auto it = globalEdgeCount.begin(); it != globalEdgeCount.end(); ++it ) {
+    unsigned int gEdge = it -> first ;
+    int gEdgeCount = it -> second ;
+    globalEdgeIC[gEdge] = -log(gEdgeCount/edgeCount);
+  }
+  // computing the local edge IC
+  for ( auto it = localEdgeCount.begin(); it != localEdgeCount.end(); ++it ) {
+    unsigned int lNode = it -> first ;
+    unordered_map<unsigned int, int> m = it -> second ;
+    for ( auto it2 = m.begin(); it2 != m.end(); ++it2 ) {
+      unsigned int lEdge = it2 -> first ;
+      int lEdgeCount = it2 -> second ;
+      int lEdgeTotalCount = graph[lNode].size();
+      localEdgeIC[lNode][lEdge] = -log(lEdgeCount / lEdgeTotalCount);
     }
   }
 }
