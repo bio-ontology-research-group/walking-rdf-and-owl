@@ -168,32 +168,42 @@ void generate_corpus() {
 
 int main (int argc, char *argv[]) {
 
-  options_description desc("Options:");
-  desc.add_options()
-    ("help", "produce help message")
-    ("version,v", "print version string")
-    ("walk-num,w", value<int>()->default_value(50), "number of walks (default: 50)")
-    ("walk-length,l", value<int>()->default_value(10), "walk length (default: 10)")
-    ("graph,g", value<string>(), "graph filename")
-    ("output,o", value<string>(), "output filename")
-    ("threads,t", value<int>()->default_value(1), "number of threads to use (default: 1)")
-    ;
-  variables_map vm;
-  store(parse_command_line(argc, argv, desc), vm);
-  notify(vm);
-  if (vm.count("help")) {
-    cout << desc << "\n";
-    return 1;
-  }
-  NUMBER_WALKS = vm["walk-num"].as<int>();
-  LENGTH_WALKS = vm["walk-length"].as<int>();
-  THREADS = vm["threads"].as<int>();
+  try {
+    options_description desc("Options:");
+    desc.add_options()
+      ("help", "produce help message")
+      ("version,v", "print version string")
+      ("walk-num,w", value<int>()->default_value(50), "number of walks (default: 50)")
+      ("walk-length,l", value<int>()->default_value(10), "walk length (default: 10)")
+      ("threads,t", value<int>()->default_value(1), "number of threads to use (default: 1)")
+      ("graph,g", value<string>()->required(), "edgelist filename")
+      ("output,o", value<string>()->required(), "output filename")
+      ;
+    variables_map vm;
+    store(parse_command_line(argc, argv, desc), vm);
+    notify(vm);
+    if (vm.count("help")) {
+      cout << desc << "\n";
+      return 1;
+    }
+    notify(vm);
+  
+    NUMBER_WALKS = vm["walk-num"].as<int>();
+    LENGTH_WALKS = vm["walk-length"].as<int>();
+    THREADS = vm["threads"].as<int>();
     
-  cout << "Building graph from " << vm["graph"].as<string>() << "\n" ; //argv[1]
-  build_graph(vm["graph"].as<string>());
-  cout << "Number of nodes in graph: " << graph.size() << "\n" ;
-  cout << "Writing walks to " << vm["output"].as<string>() << "\n" ; // argv[2]
-  fout.open(vm["output"].as<string>()) ;
-  generate_corpus() ;
-  fout.close() ;
+    cout << "Building graph from " << vm["graph"].as<string>() << "\n" ; //argv[1]
+    build_graph(vm["graph"].as<string>());
+    cout << "Number of nodes in graph: " << graph.size() << "\n" ;
+    cout << "Writing walks to " << vm["output"].as<string>() << "\n" ; // argv[2]
+    fout.open(vm["output"].as<string>()) ;
+    generate_corpus() ;
+    fout.close() ;
+  } catch(std::exception& e) {
+    cerr << "Error: " << e.what() << "\n";
+    return false;
+  } catch(...) {
+    cerr << "Unknown error!" << "\n";
+    return false;
+  }
 }
