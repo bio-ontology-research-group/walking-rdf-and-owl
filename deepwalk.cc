@@ -24,7 +24,7 @@
 
 #define NUM_NODES 1000000
 #define BUFFERSIZE 512
-#define THREADS 32
+//#define THREADS 32
 
 //#define NUMBER_WALKS 100
 //#define LENGTH_WALKS 20
@@ -46,6 +46,7 @@ uniform_int_distribution<int> uni(0,INT_MAX);
 
 int NUMBER_WALKS=100;
 int LENGTH_WALKS=20;
+int THREADS = 32;
 
 ofstream fout;
 boost::mutex mtx;
@@ -130,6 +131,7 @@ int main (int argc, char *argv[]) {
     ("walk-length,l", value<int>(), "walk length")
     ("graph,g", value<string>(), "graph filename")
     ("output,o", value<string>(), "output filename")
+    ("threads,t", value<int>(), "number of threads to use")
     ;
   variables_map vm;
   store(parse_command_line(argc, argv, desc), vm);
@@ -140,6 +142,7 @@ int main (int argc, char *argv[]) {
   }
   NUMBER_WALKS = vm["walk-num"].as<int>();
   LENGTH_WALKS = vm["walk-length"].as<int>();
+  THREADS = vm["threads"].as<int>();
     
   cout << "Building graph from " << vm["graph"].as<string>() << "\n" ; //argv[1]
   build_graph(vm["graph"].as<string>());
