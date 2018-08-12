@@ -46,9 +46,9 @@ random_device rd;
 mt19937 rng(rd());
 uniform_int_distribution<int> uni(0,INT_MAX);
 
-int NUMBER_WALKS=100;
-int LENGTH_WALKS=20;
-int THREADS = 32;
+int NUMBER_WALKS;
+int LENGTH_WALKS;
+int THREADS;
 
 ofstream fout;
 boost::mutex mtx;
@@ -112,12 +112,12 @@ void walk(unsigned int source) {
 	  // setting up the distribution for local stratification
 	  vector<double> v ;
 	  map<int, unsigned int> evmap ; // corresponds to v in containing the actual edge
-	  int i = 0 ;
+	  int j = 0 ;
 	  for ( auto it = graph[current].begin(); it != graph[current].end(); ++it ) {
 	    unsigned int edge = it->first;
 	    v.push_back(localEdgeIC[current][edge]) ;
-	    evmap[i] = edge;
-	    i++;
+	    evmap[j] = edge;
+	    j++;
 	  }
 	  default_random_engine generator;
 	  discrete_distribution<unsigned int> distribution(v.begin(), v.end()) ;
@@ -128,7 +128,7 @@ void walk(unsigned int source) {
 	  //	  int target = next.node ;
 	  //	  int edge = next.edge ;
 	  walks[i].push_back(selectedEdge) ;
-	  walks[i].push_back(next) ;
+	  walks[i].push_back(graph[current][selectedEdge][next]) ;
 	  current = next ;
 	} else {
 	  int edge = INT_MAX ; // null edge
@@ -171,7 +171,7 @@ int main (int argc, char *argv[]) {
   try {
     options_description desc("Options:");
     desc.add_options()
-      ("help", "produce help message")
+      ("help,h", "produce help message")
       ("version,v", "print version string")
       ("walk-num,w", value<int>()->default_value(50), "number of walks (default: 50)")
       ("walk-length,l", value<int>()->default_value(10), "walk length (default: 10)")
