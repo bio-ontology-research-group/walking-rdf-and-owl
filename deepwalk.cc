@@ -94,7 +94,12 @@ void build_graph(string fname) {
       unsigned int lEdge = it2 -> first ;
       int lEdgeCount = it2 -> second ;
       int lEdgeTotalCount = nodeDegree[lNode];
-      localEdgeIC[lNode][lEdge] = -log(lEdgeCount / lEdgeTotalCount);
+      if (lEdgeCount < lEdgeTotalCount) {
+	localEdgeIC[lNode][lEdge] = -1 * log((double)lEdgeCount/(double)lEdgeTotalCount);
+      } else {
+	localEdgeIC[lNode][lEdge] = 1 ;
+      }
+      //      cout << "count: " << lEdgeCount << " Total: " << lEdgeTotalCount << " IC: " << localEdgeIC[lNode][lEdge] << " Val: " << lEdgeCount / lEdgeTotalCount << "\n" ;
     }
   }
 }
@@ -120,12 +125,11 @@ void walk(unsigned int source) {
 	    j++;
 	  }
 	  discrete_distribution<unsigned int> distribution(v.begin(), v.end()) ;
+	  for (double d : v) cout << d << " ";
+	  cout << "\n" ;
 	  // selecting the edge (locally stratified)
 	  int selectedEdge = evmap[distribution(rng)];
 	  unsigned int next = uni(rng) % graph[current][selectedEdge].size();
-	  //	  Edge next = graph[current][r] ;
-	  //	  int target = next.node ;
-	  //	  int edge = next.edge ;
 	  walks[i].push_back(selectedEdge) ;
 	  walks[i].push_back(graph[current][selectedEdge][next]) ;
 	  current = graph[current][selectedEdge][next] ;
