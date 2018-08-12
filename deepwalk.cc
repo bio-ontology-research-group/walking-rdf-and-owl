@@ -119,10 +119,9 @@ void walk(unsigned int source) {
 	    evmap[j] = edge;
 	    j++;
 	  }
-	  default_random_engine generator;
 	  discrete_distribution<unsigned int> distribution(v.begin(), v.end()) ;
 	  // selecting the edge (locally stratified)
-	  int selectedEdge = evmap[distribution(generator)];
+	  int selectedEdge = evmap[distribution(rng)];
 	  unsigned int next = uni(rng) % graph[current][selectedEdge].size();
 	  //	  Edge next = graph[current][r] ;
 	  //	  int target = next.node ;
