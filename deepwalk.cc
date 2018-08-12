@@ -128,7 +128,7 @@ void walk(unsigned int source) {
 	  //	  int edge = next.edge ;
 	  walks[i].push_back(selectedEdge) ;
 	  walks[i].push_back(graph[current][selectedEdge][next]) ;
-	  current = next ;
+	  current = graph[current][selectedEdge][next] ;
 	} else {
 	  int edge = INT_MAX ; // null edge
 	  current = source ;
