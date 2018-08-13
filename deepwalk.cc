@@ -168,8 +168,8 @@ void generate_corpus() {
 
 int main (int argc, char *argv[]) {
 
+  options_description desc("Options:");
   try {
-    options_description desc("Options:");
     desc.add_options()
       ("help,h", "produce help message")
       ("version,v", "print version string")
@@ -200,6 +200,7 @@ int main (int argc, char *argv[]) {
     fout.close() ;
   } catch(std::exception& e) {
     cerr << "Error: " << e.what() << "\n";
+    cerr << desc << "\n" ;
     return false;
   } catch(...) {
     cerr << "Unknown error!" << "\n";
