@@ -84,7 +84,7 @@ void build_graph(string fname) {
   for ( auto it = globalEdgeCount.begin(); it != globalEdgeCount.end(); ++it ) {
     unsigned int gEdge = it -> first ;
     int gEdgeCount = it -> second ;
-    globalEdgeIC[gEdge] = -log(gEdgeCount/edgeCount);
+    globalEdgeIC[gEdge] = -log((double)gEdgeCount/(double)edgeCount);
   }
   // computing the local edge IC
   for ( auto it = localEdgeCount.begin(); it != localEdgeCount.end(); ++it ) {
@@ -99,7 +99,7 @@ void build_graph(string fname) {
       } else {
 	localEdgeIC[lNode][lEdge] = 1 ;
       }
-      //      cout << "count: " << lEdgeCount << " Total: " << lEdgeTotalCount << " IC: " << localEdgeIC[lNode][lEdge] << " Val: " << lEdgeCount / lEdgeTotalCount << "\n" ;
+      //cout << "count: " << lEdgeCount << " Total: " << lEdgeTotalCount << " IC: " << localEdgeIC[lNode][lEdge] << " Val: " << lEdgeCount / lEdgeTotalCount << "\n" ;
     }
   }
 }
@@ -113,7 +113,6 @@ void walk(unsigned int source) {
       walks[i].push_back(source) ;
       while (count > 0) {
 	if (nodeDegree[current] > 0 ) { // if there are outgoing edges
-
 	  // setting up the distribution for local stratification
 	  vector<double> v ;
 	  map<int, unsigned int> evmap ; // corresponds to v in containing the actual edge
@@ -125,8 +124,6 @@ void walk(unsigned int source) {
 	    j++;
 	  }
 	  discrete_distribution<unsigned int> distribution(v.begin(), v.end()) ;
-	  for (double d : v) cout << d << " ";
-	  cout << "\n" ;
 	  // selecting the edge (locally stratified)
 	  int selectedEdge = evmap[distribution(rng)];
 	  unsigned int next = uni(rng) % graph[current][selectedEdge].size();
