@@ -176,8 +176,8 @@ int main (int argc, char *argv[]) {
       ("walk-num,w", value<int>()->default_value(50), "number of walks (default: 50)")
       ("walk-length,l", value<int>()->default_value(10), "walk length (default: 10)")
       ("threads,t", value<int>()->default_value(1), "number of threads to use (default: 1)")
-      ("graph,g", value<string>()->required(), "edgelist filename")
-      ("output,o", value<string>()->required(), "output filename")
+      ("graph-file,g", value<string>()->required(), "edgelist filename")
+      ("output-file,o", value<string>()->required(), "output filename containing the walks")
       ;
     variables_map vm;
     store(parse_command_line(argc, argv, desc), vm);
