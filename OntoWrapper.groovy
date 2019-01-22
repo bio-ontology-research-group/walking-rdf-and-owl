@@ -29,13 +29,13 @@ def cli = new CliBuilder()
 cli.with {
 usage: 'Self'
   h longOpt:'help', 'this information'
-  i longOpt:'input', 'input RDF file', args:1, required:true
+  i longOpt:'input', 'input ontology file', args:1, required:true
   o longOpt:'output', 'output file for DeepWalk algorithm',args:1, required:true
   m longOpt:'mapping-file', 'output mapping file; has numerical ids for all entities',args:1, required:true
   u longOpt:'undirected', 'build undirected graph (default: false)', args:1, required:false
   c longOpt:'classify', 'use an OWL reasoner to classify the RDF dataset (must be in RDF/XML) before graph generation (default: false)', args:1, required:false
   f longOpt:'format', 'RDF format; values are "RDF/XML", "N-TRIPLE", "TURTLE" and "N3" (default: RDF/XML)', args:1, required:false
-  d longOpt:'ontology-directory', 'directory with ontologies to use for reasoning', args:1, required:false
+  // d longOpt:'ontology-directory', 'directory with ontologies to use for reasoning', args:1, required:false
 }
 def opt = cli.parse(args)
 if( !opt ) {
@@ -69,11 +69,11 @@ if (classify) {
   OWLOntologyManager manager = OWLManager.createOWLOntologyManager()
   def oset = new LinkedHashSet()
   oset.add(manager.loadOntologyFromOntologyDocument(new File(opt.i)))
-  if (opt.d) {
-    new File(opt.d).eachFile { ofile ->
-      oset.add(manager.loadOntologyFromOntologyDocument(ofile))
-    }
-  }
+  // if (opt.d) {
+  //   new File(opt.d).eachFile { ofile ->
+  //     oset.add(manager.loadOntologyFromOntologyDocument(ofile))
+  //   }
+  // }
   OWLOntology ont = manager.createOntology(IRI.create("http://aber-owl.net/rdfwalker/t.owl"),oset)
   OWLDataFactory fac = manager.getOWLDataFactory()
   ConsoleProgressMonitor progressMonitor = new ConsoleProgressMonitor()
